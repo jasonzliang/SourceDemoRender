@@ -762,6 +762,27 @@ GameFnProxy game_get_velocity_proxy_2()
     return px;
 }
 
+// For x64 CS:S.
+GameFnProxy game_get_velocity_proxy_3()
+{
+    // Search for "m_vecVelocity[0]", find offset to C_BaseEntity::m_vecVelocity.
+
+    u8* addr = (u8*)game_scan_pattern("client.dll", "41 B8 ?? ?? ?? ?? 48 89 44 24 ?? 44 8D 4D 04 48 8D 15 ?? ?? ?? ?? 89 6C 24 20 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B8 ?? ?? ?? ?? 48 89 44 24 ?? 44 8D 4D 04 48 8D 15 ?? ?? ?? ?? 89 6C 24 20 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 1D ?? ?? ?? ??", NULL);
+
+    if (addr == NULL)
+    {
+        return {};
+    }
+
+    addr += 2;
+    s32 offset = *(s32*)addr;
+
+    GameFnProxy px;
+    px.target = (void*)offset;
+    px.proxy = game_velocity_proxy_0;
+    return px;
+}
+
 // ----------------------------------------------------------------
 
 // For x86 CS:S.
@@ -967,6 +988,7 @@ GameProxyOpt GAME_ENTITY_VELOCITY_PROXIES[] =
     GameProxyOpt { SVR_IS_X86(), game_get_velocity_proxy_0, { "client.dll" }, 0 },
     GameProxyOpt { SVR_IS_X64(), game_get_velocity_proxy_1, { "client.dll" }, 0 },
     GameProxyOpt { SVR_IS_X86(), game_get_velocity_proxy_2, { "client.dll" }, 0 },
+    GameProxyOpt { SVR_IS_X64(), game_get_velocity_proxy_3, { "client.dll" }, 0 },
 };
 
 GameProxyOpt GAME_CMD_ARGS_PROXIES[] =
